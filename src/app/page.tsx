@@ -10,6 +10,7 @@ export default function Home() {
       likeCount: 20,
       shareCount: 24,
       viewCount: 1230,
+      tags: ["tag1", "tag2", "tag3"],
     },
     {
       firstName: "Albert Flores Longer",
@@ -19,6 +20,7 @@ export default function Home() {
       likeCount: 20,
       shareCount: 24,
       viewCount: 1230,
+      tags: ["tag1", "tag2"],
     },
   ];
 
@@ -58,6 +60,7 @@ export default function Home() {
       likeCount: 20,
       shareCount: 24,
       viewCount: 1230,
+      tags: ["tag1"],
     },
   ];
   return (
@@ -76,6 +79,7 @@ export default function Home() {
               likeCount={post.likeCount}
               shareCount={post.shareCount}
               viewCount={post.viewCount}
+              tags={post.tags}
             />
           ))}
         </div>
@@ -107,6 +111,7 @@ export default function Home() {
               likeCount={post.likeCount}
               shareCount={post.shareCount}
               viewCount={post.viewCount}
+              tags={post.tags}
             />
           ))}
         </div>

@@ -15,6 +15,7 @@ export default function UserCard(props: UserCardProps) {
     likeCount,
     shareCount,
     viewCount,
+    tags = [],
   } = props;
 
   return (
@@ -53,11 +54,15 @@ export default function UserCard(props: UserCardProps) {
                   Post body lorem ipsum dolor sit amet consectetur. Sem
                   vestibulum massa lacus interdum enim fringilla.
                 </p>
-                <div className="flex gap-3 text-primary/default">
-                  <span className="text-xs">#tag1</span>
-                  <span className="text-xs">#tag2</span>
-                  <span className="text-xs">#tag3</span>
-                </div>
+                {tags.length > 0 && (
+                  <div className="flex gap-3 text-primary/default">
+                    {tags.map((tag, index) => (
+                      <span key={index} className="text-xs">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </>
             )}
           </div>

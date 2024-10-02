@@ -6,8 +6,8 @@ interface LikesData {
 
 export default function LikesCount({ likeCount }: LikesData) {
   return (
-    <span className="flex items-center gap-1 text-sm text-text/text-secondary">
-      <LikesIcon className="text-text/text-light" /> {likeCount}
+    <span className="flex items-center gap-1 text-sm text-textSecondary">
+      <LikesIcon className="text-textLight" /> {likeCount}
     </span>
   );
 }

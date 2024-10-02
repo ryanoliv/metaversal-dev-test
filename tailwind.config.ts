@@ -15,11 +15,14 @@ const config: Config = {
         contentSurface: "#fff",
         contentBase: "#F9FAFA",
         contentBorder: "#E4E7E8",
+        greyCold20: "#F9FAFA",
         greyCold50: "#F1F3F4",
+        greyCold900: "#2E3538",
         textPrimary: "#141C24",
         textSecondary: "#5C6970",
         textLight: "#5C6970",
         primaryDefault: "#4426D9",
+        primary50: "#ECE9FB",
         lightBlue50: "#E5F4FF",
         lightBlue700: "#0077CC",
         slate15: "#DFDFDF",
@@ -27,6 +30,8 @@ const config: Config = {
       backgroundImage: {
         "button-gradient-primary":
           "linear-gradient(180deg, #FF0073 -114.9%, #811AB8 -51.51%, #4426D9 100%)",
+        "button-gradient-primary-hover":
+          "linear-gradient(180deg, #FF0073 -85.89%, #811AB8 34.45%, #4426D9 100%);",
         "profile-card-gradient":
           "linear-gradient(180deg, #FFFFFF 0%, #FFFAF5 100%);",
       },

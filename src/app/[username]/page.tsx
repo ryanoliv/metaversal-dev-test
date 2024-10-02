@@ -6,6 +6,7 @@ import Image from "next/image";
 import UserCard from "../components/UserCard";
 import LocationIcon from "@svgs/location.svg";
 import UserProfileStats from "../components/UserProfileStats";
+import Button from "../components/Button";
 
 interface UserProfileProps {
   params: {
@@ -14,11 +15,16 @@ interface UserProfileProps {
 }
 
 export default function UserProfile({ params }: UserProfileProps) {
-  const { setTitle } = useHeaderTitle();
+  const { setTitle, setShowBackArrow } = useHeaderTitle();
 
   useEffect(() => {
     setTitle("Profile");
-  }, [setTitle]);
+    setShowBackArrow(true);
+
+    return () => {
+      setShowBackArrow(false);
+    };
+  }, [setTitle, setShowBackArrow]);
 
   const { username } = params;
 
@@ -96,12 +102,14 @@ export default function UserProfile({ params }: UserProfileProps) {
             </div>
           </div>
           <div className="p-4 flex justify-center md:justify-start gap-4 border-t border-greyCold50 bg-profile-card-gradient rounded-b-xl">
-            <button className="bg-button-gradient-primary text-white100 py-2 px-3.5 rounded-3xl font-extrabold">
+            {/* <button className="bg-button-gradient-primary text-white100 py-2 px-3.5 rounded-3xl font-extrabold">
               Follow
             </button>
             <button className="py-2 px-3.5 border border-primaryDefault text-primaryDefault rounded-3xl">
               Message
-            </button>
+            </button> */}
+            <Button variant="primary">Follow</Button>
+            <Button variant="secondary">Message</Button>
           </div>
         </div>
         <div className="flex flex-col gap-4">

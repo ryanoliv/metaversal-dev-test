@@ -3,6 +3,8 @@ import { UserCardProps } from "../types/user";
 import LikesCount from "./LikesCount";
 import SharesCount from "./SharesCount";
 import ViewsCount from "./ViewsCount";
+import Link from "next/link";
+import Button from "./Button";
 
 export default function UserCard(props: UserCardProps) {
   const {
@@ -28,24 +30,28 @@ export default function UserCard(props: UserCardProps) {
         <div
           className={`flex gap-3 ${variant === "simple" ? "items-center" : ""}`}
         >
-          <div>
-            <Image
-              src={avatarUrl}
-              alt={`${firstName}'s avatar`}
-              width={40}
-              height={40}
-              className="rounded-3xl"
-            />
-          </div>
+          <Link href={`/${username}`}>
+            <div>
+              <Image
+                src={avatarUrl}
+                alt={`${firstName}'s avatar`}
+                width={40}
+                height={40}
+                className="rounded-3xl transition-opacity duration-200 ease hover:opacity-50"
+              />
+            </div>
+          </Link>
           <div className="flex flex-1 flex-col gap-3">
             <div className="flex flex-col gap-1 py-1">
-              <h3
-                className={`text-base text-textPrimary ${
-                  variant === "simple" ? "min-w-[154px]" : ""
-                }`}
-              >
-                {firstName} {lastName}
-              </h3>
+              <Link href={`/${username}`}>
+                <h3
+                  className={`text-base text-textPrimary ${
+                    variant === "simple" ? "min-w-[154px]" : ""
+                  } hover:underline`}
+                >
+                  {firstName} {lastName}
+                </h3>
+              </Link>
               <p className="text-xs text-textSecondary">@{username}</p>
             </div>
             {variant === "detailed" && (
@@ -66,11 +72,7 @@ export default function UserCard(props: UserCardProps) {
               </>
             )}
           </div>
-          {showFollowButton && (
-            <button className="py-2 px-3.5 border text-primaryDefault border-primaryDefault rounded-3xl">
-              Follow
-            </button>
-          )}
+          {showFollowButton && <Button variant="secondary">Follow</Button>}
         </div>
       </div>
       {variant === "detailed" && (

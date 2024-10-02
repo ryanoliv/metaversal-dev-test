@@ -5,11 +5,12 @@ import { useHeaderTitle } from "./contexts/HeaderTitleContext";
 import UserCard from "./components/UserCard";
 
 export default function Home() {
-  const { setTitle } = useHeaderTitle();
+  const { setTitle, setShowBackArrow } = useHeaderTitle();
 
   useEffect(() => {
     setTitle("Feed");
-  }, [setTitle]);
+    setShowBackArrow(false);
+  }, [setTitle, setShowBackArrow]);
 
   const suggestedPosts = [
     {

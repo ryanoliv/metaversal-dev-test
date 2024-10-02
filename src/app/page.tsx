@@ -1,6 +1,16 @@
+"use client";
+
+import { useEffect } from "react";
+import { useHeaderTitle } from "./contexts/HeaderTitleContext";
 import UserCard from "./components/UserCard";
 
 export default function Home() {
+  const { setTitle } = useHeaderTitle();
+
+  useEffect(() => {
+    setTitle("Feed");
+  }, [setTitle]);
+
   const suggestedPosts = [
     {
       firstName: "Emily",

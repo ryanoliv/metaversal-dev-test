@@ -1,6 +1,11 @@
+"use client";
+
+import { useEffect } from "react";
+import { useHeaderTitle } from "../contexts/HeaderTitleContext";
 import Image from "next/image";
 import UserCard from "../components/UserCard";
 import LocationIcon from "@svgs/location.svg";
+import UserProfileStats from "../components/UserProfileStats";
 
 interface UserProfileProps {
   params: {
@@ -9,6 +14,12 @@ interface UserProfileProps {
 }
 
 export default function UserProfile({ params }: UserProfileProps) {
+  const { setTitle } = useHeaderTitle();
+
+  useEffect(() => {
+    setTitle("Profile");
+  }, [setTitle]);
+
   const { username } = params;
 
   // Static data
@@ -78,20 +89,10 @@ export default function UserProfile({ params }: UserProfileProps) {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-6 justify-center md:justify-start">
-                <div className="flex flex-col items-center md:items-start gap-1">
-                  <h2 className="text-lg">{userData.postsCount}</h2>
-                  <span className="text-xs uppercase text-textLight">
-                    Posts
-                  </span>
-                </div>
-                <div className="flex flex-col items-center md:items-start gap-1">
-                  <h2 className="text-lg">{userData.likesCount}</h2>
-                  <span className="text-xs uppercase text-textLight">
-                    Likes
-                  </span>
-                </div>
-              </div>
+              <UserProfileStats
+                postsCount={userData.postsCount}
+                likesCount={userData.likesCount}
+              />
             </div>
           </div>
           <div className="p-4 flex justify-center md:justify-start gap-4 border-t border-greyCold50 bg-profile-card-gradient rounded-b-xl">

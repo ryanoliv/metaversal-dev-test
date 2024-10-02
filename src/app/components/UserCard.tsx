@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { UserCardProps } from "../types/user";
+import { UserCardProps } from "../types/userCard";
 import LikesCount from "./LikesCount";
 import SharesCount from "./SharesCount";
 import ViewsCount from "./ViewsCount";
@@ -7,18 +7,10 @@ import Link from "next/link";
 import Button from "./Button";
 
 export default function UserCard(props: UserCardProps) {
-  const {
-    firstName,
-    lastName,
-    username,
-    avatarUrl,
-    variant = "simple",
-    showFollowButton = false,
-    likeCount,
-    shareCount,
-    viewCount,
-    tags = [],
-  } = props;
+  const { user, post, variant = "simple", showFollowButton = false } = props;
+
+  const { firstName, lastName, username, avatarUrl } = user;
+  const { body, tags, reactions, views } = post || {};
 
   return (
     <div
@@ -33,7 +25,7 @@ export default function UserCard(props: UserCardProps) {
           <Link href={`/${username}`}>
             <div>
               <Image
-                src={avatarUrl}
+                src={avatarUrl || "/Avatar.png"}
                 alt={`${firstName}'s avatar`}
                 width={40}
                 height={40}
@@ -54,13 +46,10 @@ export default function UserCard(props: UserCardProps) {
               </Link>
               <p className="text-xs text-textSecondary">@{username}</p>
             </div>
-            {variant === "detailed" && (
+            {variant === "detailed" && post && (
               <>
-                <p className="text-sm text-textSecondary">
-                  Post body lorem ipsum dolor sit amet consectetur. Sem
-                  vestibulum massa lacus interdum enim fringilla.
-                </p>
-                {tags.length > 0 && (
+                <p className="text-sm text-textSecondary">{body}</p>
+                {tags && tags.length > 0 && (
                   <div className="flex gap-3 text-primaryDefault">
                     {tags.map((tag, index) => (
                       <span key={index} className="text-xs">
@@ -75,11 +64,11 @@ export default function UserCard(props: UserCardProps) {
           {showFollowButton && <Button variant="secondary">Follow</Button>}
         </div>
       </div>
-      {variant === "detailed" && (
+      {variant === "detailed" && post && (
         <div className="flex gap-6 p-4 border-t rounded-b-2xl">
-          <LikesCount likeCount={likeCount || 0} />
-          <SharesCount shareCount={shareCount || 0} />
-          <ViewsCount viewCount={viewCount || 0} />
+          <LikesCount likeCount={reactions?.likes || 0} />
+          <SharesCount shareCount={reactions?.dislikes || 0} />
+          <ViewsCount viewCount={views || 0} />
         </div>
       )}
     </div>

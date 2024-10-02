@@ -63,8 +63,9 @@ export default function Home() {
       tags: ["tag1"],
     },
   ];
+
   return (
-    <section className="flex justify-center bg-content/base">
+    <section className="flex justify-center bg-contentBase">
       <div className="flex flex-col gap-12 py-8 px-4 max-w-[700px]">
         <div className="flex flex-col gap-4">
           <h2 className="text-lg">Suggested Posts</h2>

@@ -11,15 +11,24 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        "white/100": "#fff",
-        "content/surface": "#fff",
-        "content/base": "#F9FAFA",
-        "content/border": "#E4E7E8",
-        "text/text-primary": "#141C24",
-        "text/text-secondary": "#5C6970",
-        "text/text-light": "#5C6970",
-        "primary/default": "#4426D9",
-        "slate/15": "#DFDFDF",
+        white100: "#fff",
+        contentSurface: "#fff",
+        contentBase: "#F9FAFA",
+        contentBorder: "#E4E7E8",
+        greyCold50: "#F1F3F4",
+        textPrimary: "#141C24",
+        textSecondary: "#5C6970",
+        textLight: "#5C6970",
+        primaryDefault: "#4426D9",
+        lightBlue50: "#E5F4FF",
+        lightBlue700: "#0077CC",
+        slate15: "#DFDFDF",
+      },
+      backgroundImage: {
+        "button-gradient-primary":
+          "linear-gradient(180deg, #FF0073 -114.9%, #811AB8 -51.51%, #4426D9 100%)",
+        "profile-card-gradient":
+          "linear-gradient(180deg, #FFFFFF 0%, #FFFAF5 100%);",
       },
       fontSize: {
         xs: [
@@ -34,12 +43,8 @@ const config: Config = {
             lineHeight: "1.025625rem",
           },
         ],
-        base: [
-          "1rem",
-          {
-            lineHeight: "1rem",
-          },
-        ],
+        base: "1rem",
+
         md: [
           "1.125rem",
           {

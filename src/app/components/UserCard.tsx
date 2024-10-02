@@ -20,7 +20,7 @@ export default function UserCard(props: UserCardProps) {
 
   return (
     <div
-      className={`flex flex-col bg-content/surface shadow rounded-2xl border border-content/border ${
+      className={`flex flex-col bg-contentSurface shadow rounded-xl border border-contentBorder ${
         variant === "simple" ? "max-w-[326px]" : ""
       }`}
     >
@@ -40,22 +40,22 @@ export default function UserCard(props: UserCardProps) {
           <div className="flex flex-1 flex-col gap-3">
             <div className="flex flex-col gap-1 py-1">
               <h3
-                className={`text-base text-text/text-primary ${
+                className={`text-base text-textPrimary ${
                   variant === "simple" ? "min-w-[154px]" : ""
                 }`}
               >
                 {firstName} {lastName}
               </h3>
-              <p className="text-xs text-text/text-secondary">@{username}</p>
+              <p className="text-xs text-textSecondary">@{username}</p>
             </div>
             {variant === "detailed" && (
               <>
-                <p className="text-sm text-text/text-secondary">
+                <p className="text-sm text-textSecondary">
                   Post body lorem ipsum dolor sit amet consectetur. Sem
                   vestibulum massa lacus interdum enim fringilla.
                 </p>
                 {tags.length > 0 && (
-                  <div className="flex gap-3 text-primary/default">
+                  <div className="flex gap-3 text-primaryDefault">
                     {tags.map((tag, index) => (
                       <span key={index} className="text-xs">
                         #{tag}
@@ -67,7 +67,7 @@ export default function UserCard(props: UserCardProps) {
             )}
           </div>
           {showFollowButton && (
-            <button className="py-2 px-3.5 border text-primary/default border-primary/default rounded-3xl">
+            <button className="py-2 px-3.5 border text-primaryDefault border-primaryDefault rounded-3xl">
               Follow
             </button>
           )}

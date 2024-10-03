@@ -5,6 +5,8 @@ import { useHeaderTitle } from "./contexts/HeaderTitleContext";
 import UserCard from "./components/UserCard";
 import { User } from "./types/user";
 import { Post } from "./types/post";
+import SkeletonCard from "./components/SkeletonCard";
+import SkeletonCardSimplified from "./components/SkeletonCardSimplified";
 
 export default function Home() {
   const { setTitle, setShowBackArrow } = useHeaderTitle();
@@ -81,8 +83,10 @@ export default function Home() {
           .slice(0, 4);
 
         setUsersToFollow(sortedUsersByPosts);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(
+          err instanceof Error ? err.message : "An unexpected error occured"
+        );
       } finally {
         setLoading(false);
       }
@@ -92,12 +96,34 @@ export default function Home() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <section className="flex justify-center bg-contentBase">
+        <div className="flex flex-col gap-12 py-8 px-4 max-w-[700px]">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-lg">Suggested Posts</h2>
+            {[...Array(2)].map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+          <div className="flex flex-col gap-4">
+            <h2 className="text-lg">Who to follow</h2>
+            <div className="flex gap-4 flex-wrap">
+              {[...Array(4)].map((_, index) => (
+                <SkeletonCardSimplified key={index} />
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <h2 className="text-lg">Recent</h2>
+            {[...Array(5)].map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
   }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <section className="flex justify-center bg-contentBase">

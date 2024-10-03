@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import { UserCardProps } from "../types/userCard";
 import LikesCount from "./LikesCount";

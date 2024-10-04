@@ -61,7 +61,7 @@ export default function UserProfile({ params }: UserProfileProps) {
 
   if (loading) {
     return (
-      <section className="py-16 px-4 flex justify-center bg-contentBase">
+      <section className="py-16 px-4 flex justify-center bg-contentBase min-h-screen">
         <div className="max-w-[700px] w-full flex flex-col gap-12">
           <SkeletonCardProfile />
           <div className="flex flex-col gap-4">

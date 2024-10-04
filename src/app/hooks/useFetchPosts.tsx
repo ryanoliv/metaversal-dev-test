@@ -3,39 +3,66 @@ import { Post } from "../types/post";
 
 interface UseFetchPostsReturn {
   allPosts: Post[];
+  fetchMorePosts: () => void;
   loading: boolean;
+  loadingMore: boolean;
   error: string | null;
 }
 
-export default function useFetchPosts(): UseFetchPostsReturn {
+export default function useFetchPosts(limit: number = 5): UseFetchPostsReturn {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [skip, setSkip] = useState(0);
 
-  useEffect(() => {
-    async function fetchPosts() {
-      try {
+  async function fetchPosts(isLoadMore: boolean = false) {
+    try {
+      if (isLoadMore) {
+        setLoadingMore(true);
+      } else {
         setLoading(true);
-        const response = await fetch("https://dummyjson.com/posts");
+      }
+      // Delay for testing
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch posts");
-        }
+      const response = await fetch(
+        `https://dummyjson.com/posts?limit=${limit}&skip=${skip}`
+      );
 
-        const postsData = await response.json();
+      if (!response.ok) {
+        throw new Error("Failed to fetch posts");
+      }
 
-        setAllPosts(postsData.posts);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unexpected error occurred"
-        );
-      } finally {
+      const postsData = await response.json();
+      console.log(postsData.posts);
+
+      setAllPosts((prevPosts) => [...prevPosts, ...postsData.posts]);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
+    } finally {
+      if (isLoadMore) {
+        setLoadingMore(false);
+      } else {
         setLoading(false);
       }
     }
+  }
 
+  useEffect(() => {
     fetchPosts();
   }, []);
 
-  return { allPosts, loading, error };
+  // Function to fetch more posts
+  function fetchMorePosts() {
+    setSkip((prevSkip) => {
+      const newSkip = prevSkip + limit;
+      fetchPosts(true);
+      return newSkip;
+    });
+  }
+
+  return { allPosts, fetchMorePosts, loading, loadingMore, error };
 }

@@ -1,4 +1,4 @@
-
+import { forwardRef } from "react";
 import Image from "next/image";
 import { UserCardProps } from "../types/userCard";
 import LikesCount from "./LikesCount";
@@ -7,7 +7,10 @@ import ViewsCount from "./ViewsCount";
 import Link from "next/link";
 import Button from "./Button";
 
-export default function UserCard(props: UserCardProps) {
+const UserCard = forwardRef<HTMLDivElement, UserCardProps>(function UserCard(
+  props,
+  ref
+) {
   const { user, post, variant = "simple", showFollowButton = false } = props;
 
   const { firstName, lastName, username, avatarUrl } = user;
@@ -15,6 +18,7 @@ export default function UserCard(props: UserCardProps) {
 
   return (
     <div
+      ref={ref}
       className={`flex flex-col bg-contentSurface shadow rounded-xl border border-contentBorder ${
         variant === "simple" ? "max-w-[326px]" : ""
       }`}
@@ -74,4 +78,7 @@ export default function UserCard(props: UserCardProps) {
       )}
     </div>
   );
-}
+});
+
+UserCard.displayName = "UserCard";
+export default UserCard;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useHeaderTitle } from "./contexts/HeaderTitleContext";
 import useFetchUsers from "./hooks/useFetchUsers";
 import useFetchPosts from "./hooks/useFetchPosts";
@@ -11,6 +11,7 @@ import ErrorCard from "./components/ErrorCard";
 
 export default function Home() {
   const { setTitle, setShowBackArrow } = useHeaderTitle();
+  const observer = useRef<IntersectionObserver | null>(null);
 
   // Using separate hooks for fetching users and posts
   const {
@@ -20,9 +21,11 @@ export default function Home() {
   } = useFetchUsers();
   const {
     allPosts,
+    fetchMorePosts,
     loading: postsLoading,
+    loadingMore,
     error: postsError,
-  } = useFetchPosts();
+  } = useFetchPosts(5);
 
   // Unified loading and error states
   const loading = usersLoading || postsLoading;
@@ -32,6 +35,25 @@ export default function Home() {
     setTitle("Feed");
     setShowBackArrow(false);
   }, [setTitle, setShowBackArrow]);
+
+  // Intersection Observer to trigger fetchMorePosts when reaching the bottom of the feed
+  const lastPostRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (loading || loadingMore) return;
+
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        fetchMorePosts(); // Fetch more posts when the last post is in view
+      }
+    });
+
+    if (lastPostRef.current) {
+      observer.current.observe(lastPostRef.current);
+    }
+  }, [loading, loadingMore, fetchMorePosts]);
 
   // Prepare "Suggested Posts" and "Who to Follow" data after fetching
   const suggestedPosts =
@@ -103,12 +125,12 @@ export default function Home() {
           ) : error ? (
             <ErrorCard title="Error loading posts" />
           ) : (
-            allPosts.map((post) => {
+            allPosts.map((post, index) => {
               const user = allUsers.find((user) => user.id === post.userId);
 
               // Provide fallback user data if user is not found
               const fallbackUser = {
-                id: -1,
+                id: Number(`${post.id}${index}`),
                 firstName: "Unknown",
                 lastName: "User",
                 username: "unknown",
@@ -121,9 +143,15 @@ export default function Home() {
                   user={user || fallbackUser}
                   post={post}
                   variant="detailed"
+                  ref={index === allPosts.length - 1 ? lastPostRef : null}
                 />
               );
             })
+          )}
+          {loadingMore && (
+            <div className="flex justify-center py-4">
+              <div className="loader"></div>
+            </div>
           )}
         </div>
       </div>

@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import { useHeaderTitle } from "./contexts/HeaderTitleContext";
 import useFetchUsers from "./hooks/useFetchUsers";
 import useFetchPosts from "./hooks/useFetchPosts";
+import useFetchSuggestedPosts from "./hooks/useFetchSuggestedPosts";
+import { Post } from "./types/post";
 import UserCard from "./components/UserCard";
 import SkeletonCard from "./components/SkeletonCard";
 import SkeletonCardSimplified from "./components/SkeletonCardSimplified";
@@ -13,7 +15,7 @@ export default function Home() {
   const { setTitle, setShowBackArrow } = useHeaderTitle();
   const observer = useRef<IntersectionObserver | null>(null);
 
-  // Using separate hooks for fetching users and posts
+  // Using separate hooks for fetching users and posts and suggested posts
   const {
     allUsers,
     loading: usersLoading,
@@ -26,10 +28,15 @@ export default function Home() {
     loadingMore,
     error: postsError,
   } = useFetchPosts(5);
+  const {
+    suggestedPosts,
+    loading: suggestedPostsLoading,
+    error: suggestedPostsError,
+  } = useFetchSuggestedPosts(2);
 
   // Unified loading and error states
-  const loading = usersLoading || postsLoading;
-  const error = usersError || postsError;
+  const loading = usersLoading || postsLoading || suggestedPostsLoading;
+  const error = usersError || postsError || suggestedPostsError;
 
   useEffect(() => {
     setTitle("Feed");
@@ -56,13 +63,16 @@ export default function Home() {
   }, [loading, loadingMore, fetchMorePosts]);
 
   // Prepare "Suggested Posts" and "Who to Follow" data after fetching
-  const suggestedPosts =
-    !loading && !error
-      ? [...allPosts]
-          .sort((a, b) => b.reactions.likes - a.reactions.likes)
-          .filter((post) => allUsers.some((user) => user.id === post.userId))
-          .slice(0, 2)
-      : [];
+  // const suggestedPosts =
+  //   !loading && !error
+  //     ? [...allPosts]
+  //         .sort((a, b) => b.reactions.likes - a.reactions.likes)
+  //         .filter((post, index, self) => {
+  //           // Only keep posts that are unique
+  //           return index === self.findIndex((p) => p.id === post.id);
+  //         })
+  //         .slice(0, 2)
+  //     : [];
 
   const usersToFollow =
     !loading && !error
@@ -81,15 +91,27 @@ export default function Home() {
       <div className="flex flex-col gap-12 py-8 px-4 w-full max-w-[700px]">
         <div className="flex flex-col gap-4">
           <h2 className="text-lg">Suggested Posts</h2>
-          {loading ? (
+          {suggestedPostsLoading ? (
             [...Array(2)].map((_, index) => <SkeletonCard key={index} />)
-          ) : error ? (
+          ) : suggestedPostsError ? (
             <ErrorCard title="Error loading posts" />
           ) : (
-            suggestedPosts.map((post) => {
-              const user = allUsers.find((user) => user.id === post.userId);
+            suggestedPosts.map((post: Post, index) => {
+              let user = allUsers.find((user) => user.id === post.userId);
 
-              if (!user) return null;
+              // Provide fallback user data if user is not found
+              const fallbackUser = {
+                id: Number(`${post.id}${index}`),
+                firstName: "Unknown",
+                lastName: "User",
+                username: "unknown",
+                avatarUrl: "/Avatar.png",
+              };
+
+              if (!user) {
+                console.error(`User not found for post with ID: ${post.id}`);
+                user = fallbackUser;
+              }
 
               return (
                 <UserCard

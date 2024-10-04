@@ -77,7 +77,7 @@ export default function UserProfile({ params }: UserProfileProps) {
 
   if (error || !user) {
     return (
-      <section className="py-16 px-4 flex justify-center bg-contentBase">
+      <section className="py-16 px-4 flex justify-center bg-contentBase min-h-screen">
         <div className="max-w-[700px] w-full flex flex-col gap-12">
           <ErrorCard title="User not found" />
         </div>
@@ -86,7 +86,7 @@ export default function UserProfile({ params }: UserProfileProps) {
   }
 
   return (
-    <section className="py-16 px-4 flex justify-center bg-contentBase">
+    <section className="py-16 px-4 flex justify-center bg-contentBase min-h-screen">
       <div className="max-w-[700px] w-full flex flex-col gap-12">
         <div className="bg-contentSurface shadow rounded-xl">
           <div className="bg-gradient-to-r from-purple-100 to-orange-100 h-16 rounded-t-xl"></div>

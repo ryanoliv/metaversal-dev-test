@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useHeaderTitle } from "./contexts/HeaderTitleContext";
-import useFetchUsersAndPosts from "./hooks/useFetchUsersAndPosts";
+import useFetchUsers from "./hooks/useFetchUsers";
+import useFetchPosts from "./hooks/useFetchPosts";
 import UserCard from "./components/UserCard";
 import SkeletonCard from "./components/SkeletonCard";
 import SkeletonCardSimplified from "./components/SkeletonCardSimplified";
@@ -10,7 +11,22 @@ import ErrorCard from "./components/ErrorCard";
 
 export default function Home() {
   const { setTitle, setShowBackArrow } = useHeaderTitle();
-  const { allPosts, allUsers, loading, error } = useFetchUsersAndPosts();
+
+  // Using separate hooks for fetching users and posts
+  const {
+    allUsers,
+    loading: usersLoading,
+    error: usersError,
+  } = useFetchUsers();
+  const {
+    allPosts,
+    loading: postsLoading,
+    error: postsError,
+  } = useFetchPosts();
+
+  // Unified loading and error states
+  const loading = usersLoading || postsLoading;
+  const error = usersError || postsError;
 
   useEffect(() => {
     setTitle("Feed");
@@ -51,9 +67,7 @@ export default function Home() {
             suggestedPosts.map((post) => {
               const user = allUsers.find((user) => user.id === post.userId);
 
-              if (!user) {
-                return null;
-              }
+              if (!user) return null;
 
               return (
                 <UserCard
@@ -92,14 +106,19 @@ export default function Home() {
             allPosts.map((post) => {
               const user = allUsers.find((user) => user.id === post.userId);
 
-              if (!user) {
-                return null;
-              }
+              // Provide fallback user data if user is not found
+              const fallbackUser = {
+                id: -1,
+                firstName: "Unknown",
+                lastName: "User",
+                username: "unknown",
+                avatarUrl: "/Avatar.png",
+              };
 
               return (
                 <UserCard
                   key={post.id}
-                  user={user}
+                  user={user || fallbackUser}
                   post={post}
                   variant="detailed"
                 />

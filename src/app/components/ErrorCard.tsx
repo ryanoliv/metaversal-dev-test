@@ -11,7 +11,7 @@ export default function ErrorCard({ title }: ErrorCardProps) {
       <div className="flex flex-col gap-2">
         <h3 className="text-md text-textPrimary">{title}</h3>
         <p className="text-textSecondary">
-          We're so sorry but it's for the test.
+          We&apos;re so sorry but it&apos;s for the test.
         </p>
       </div>
     </div>

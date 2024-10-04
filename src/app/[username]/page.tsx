@@ -2,7 +2,9 @@
 
 import { useEffect } from "react";
 import { useHeaderTitle } from "../contexts/HeaderTitleContext";
-import useFetchUsersAndPosts from "../hooks/useFetchUsersAndPosts";
+import useFetchUsers from "../hooks/useFetchUsers";
+import useFetchUserPosts from "../hooks/useFetchUsersPosts";
+import { Post } from "../types/post";
 import Image from "next/image";
 import UserCard from "../components/UserCard";
 import LocationIcon from "@svgs/location.svg";
@@ -20,21 +22,33 @@ interface UserProfileProps {
 
 export default function UserProfile({ params }: UserProfileProps) {
   const { setTitle, setShowBackArrow } = useHeaderTitle();
-  const { allUsers, allPosts, loading, error } = useFetchUsersAndPosts();
+  const {
+    allUsers,
+    loading: usersLoading,
+    error: usersError,
+  } = useFetchUsers();
 
   const { username } = params;
 
   // Find the user from the fetched users list
   const user = allUsers.find((user) => user.username === username);
 
-  // Filter posts that belong to the user
-  const userPosts = allPosts.filter((post) => post.userId === user?.id);
+  // Fetch posts for the specific user if found
+  const {
+    userPosts,
+    loading: postsLoading,
+    error: postsError,
+  } = useFetchUserPosts({
+    userId: user?.id,
+  });
+
+  // Unified loading and error states
+  const loading = usersLoading || postsLoading;
+  const error = usersError || postsError;
 
   // Calculate total likes on user's posts
-  const totalLikes = userPosts.reduce(
-    (acc, post) => acc + post.reactions.likes,
-    0
-  );
+  const totalLikes =
+    userPosts?.reduce((acc, post) => acc + post.reactions.likes, 0) || 0;
 
   useEffect(() => {
     setTitle("Profile");
@@ -81,7 +95,7 @@ export default function UserProfile({ params }: UserProfileProps) {
               <div className="w-[120px] h-[120px] border-4 border-contentSurface rounded-full shadow-md">
                 <Image
                   src={user.avatarUrl || "/Avatar.png"}
-                  alt={`${user.firstName}'s avatar`}
+                  alt={`${user.firstName} ${user.lastName}'s avatar`}
                   width={120}
                   height={120}
                   className="rounded-full"
@@ -127,16 +141,10 @@ export default function UserProfile({ params }: UserProfileProps) {
           {userPosts.length === 0 ? (
             <p>No recent posts available</p>
           ) : (
-            userPosts.map((post) => (
+            userPosts.map((post: Post) => (
               <UserCard
                 key={post.id}
-                user={{
-                  id: user.id,
-                  firstName: user.firstName,
-                  lastName: user.lastName,
-                  username: user.username,
-                  avatarUrl: user.avatarUrl || "/Avatar.png",
-                }}
+                user={user}
                 post={post}
                 variant="detailed"
               />

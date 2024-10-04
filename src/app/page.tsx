@@ -5,6 +5,7 @@ import { useHeaderTitle } from "./contexts/HeaderTitleContext";
 import useFetchUsers from "./hooks/useFetchUsers";
 import useFetchPosts from "./hooks/useFetchPosts";
 import useFetchSuggestedPosts from "./hooks/useFetchSuggestedPosts";
+import useFetchWhoToFollow from "./hooks/usefetchWhoToFollow";
 import { Post } from "./types/post";
 import UserCard from "./components/UserCard";
 import SkeletonCard from "./components/SkeletonCard";
@@ -21,6 +22,7 @@ export default function Home() {
     loading: usersLoading,
     error: usersError,
   } = useFetchUsers();
+
   const {
     allPosts,
     fetchMorePosts,
@@ -28,15 +30,22 @@ export default function Home() {
     loadingMore,
     error: postsError,
   } = useFetchPosts(5);
+
   const {
     suggestedPosts,
     loading: suggestedPostsLoading,
     error: suggestedPostsError,
   } = useFetchSuggestedPosts(2);
 
-  // Unified loading and error states
-  const loading = usersLoading || postsLoading || suggestedPostsLoading;
-  const error = usersError || postsError || suggestedPostsError;
+  const {
+    usersToFollow,
+    loading: whoToFollowLoading,
+    error: whoToFollowError,
+  } = useFetchWhoToFollow();
+
+  // Unified loading state
+  const loading =
+    usersLoading || postsLoading || suggestedPostsLoading || whoToFollowLoading;
 
   useEffect(() => {
     setTitle("Feed");
@@ -62,30 +71,6 @@ export default function Home() {
     }
   }, [loading, loadingMore, fetchMorePosts]);
 
-  // Prepare "Suggested Posts" and "Who to Follow" data after fetching
-  // const suggestedPosts =
-  //   !loading && !error
-  //     ? [...allPosts]
-  //         .sort((a, b) => b.reactions.likes - a.reactions.likes)
-  //         .filter((post, index, self) => {
-  //           // Only keep posts that are unique
-  //           return index === self.findIndex((p) => p.id === post.id);
-  //         })
-  //         .slice(0, 2)
-  //     : [];
-
-  const usersToFollow =
-    !loading && !error
-      ? allUsers
-          .map((user) => ({
-            ...user,
-            postCount: allPosts.filter((post) => post.userId === user.id)
-              .length,
-          }))
-          .sort((a, b) => b.postCount - a.postCount)
-          .slice(0, 4)
-      : [];
-
   return (
     <section className="flex justify-center bg-contentBase">
       <div className="flex flex-col gap-12 py-8 px-4 w-full max-w-[700px]">
@@ -95,6 +80,8 @@ export default function Home() {
             [...Array(2)].map((_, index) => <SkeletonCard key={index} />)
           ) : suggestedPostsError ? (
             <ErrorCard title="Error loading posts" />
+          ) : usersError ? (
+            <ErrorCard title="No user found" />
           ) : (
             suggestedPosts.map((post: Post, index) => {
               let user = allUsers.find((user) => user.id === post.userId);
@@ -109,7 +96,7 @@ export default function Home() {
               };
 
               if (!user) {
-                console.error(`User not found for post with ID: ${post.id}`);
+                // console.error(`User not found for post with ID: ${post.id}`);
                 user = fallbackUser;
               }
 
@@ -127,11 +114,11 @@ export default function Home() {
         <div className="flex flex-col gap-4">
           <h2 className="text-lg">Who to follow</h2>
           <div className="flex gap-4 flex-wrap">
-            {loading ? (
+            {whoToFollowLoading ? (
               [...Array(4)].map((_, index) => (
                 <SkeletonCardSimplified key={index} />
               ))
-            ) : error ? (
+            ) : whoToFollowError ? (
               <ErrorCard title="Error loading users" />
             ) : (
               usersToFollow.map((user) => (
@@ -142,9 +129,9 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-4">
           <h2 className="text-lg">Recent</h2>
-          {loading ? (
+          {postsLoading ? (
             [...Array(5)].map((_, index) => <SkeletonCard key={index} />)
-          ) : error ? (
+          ) : postsError ? (
             <ErrorCard title="Error loading posts" />
           ) : (
             allPosts.map((post, index) => {

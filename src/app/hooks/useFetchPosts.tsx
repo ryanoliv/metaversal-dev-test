@@ -9,7 +9,7 @@ interface UseFetchPostsReturn {
   error: string | null;
 }
 
-export default function useFetchPosts(limit: number = 5): UseFetchPostsReturn {
+export default function useFetchPosts(limit: number = 0): UseFetchPostsReturn {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -35,7 +35,7 @@ export default function useFetchPosts(limit: number = 5): UseFetchPostsReturn {
       }
 
       const postsData = await response.json();
-      console.log(postsData.posts);
+
 
       setAllPosts((prevPosts) => [...prevPosts, ...postsData.posts]);
     } catch (err) {

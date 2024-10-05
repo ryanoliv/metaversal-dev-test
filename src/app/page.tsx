@@ -83,12 +83,12 @@ export default function Home() {
           ) : usersError ? (
             <ErrorCard title="No user found" />
           ) : (
-            suggestedPosts.map((post: Post, index) => {
+            suggestedPosts.map((post: Post) => {
               let user = allUsers.find((user) => user.id === post.userId);
 
               // Provide fallback user data if user is not found
               const fallbackUser = {
-                id: `fallback-${post.id}-${index}`,
+                id: -1,
                 firstName: "Unknown",
                 lastName: "User",
                 username: "unknown",
@@ -96,13 +96,11 @@ export default function Home() {
               };
 
               if (!user) {
-                // console.error(`User not found for post with ID: ${post.id}`);
                 user = fallbackUser;
               }
 
               return (
                 <UserCard
-                  // key={post.id}
                   key={`suggested-post-${post.id}`}
                   user={user}
                   post={post}
@@ -142,9 +140,8 @@ export default function Home() {
             allPosts.map((post, index) => {
               const user = allUsers.find((user) => user.id === post.userId);
 
-              // Provide fallback user data if user is not found
               const fallbackUser = {
-                id: `fallback-${post.id}-${index}`,
+                id: -1,
                 firstName: "Unknown",
                 lastName: "User",
                 username: "unknown",

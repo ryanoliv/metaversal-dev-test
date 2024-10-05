@@ -88,7 +88,7 @@ export default function Home() {
 
               // Provide fallback user data if user is not found
               const fallbackUser = {
-                id: Number(`${post.id}${index}`),
+                id: `fallback-${post.id}-${index}`,
                 firstName: "Unknown",
                 lastName: "User",
                 username: "unknown",
@@ -102,7 +102,8 @@ export default function Home() {
 
               return (
                 <UserCard
-                  key={post.id}
+                  // key={post.id}
+                  key={`suggested-post-${post.id}`}
                   user={user}
                   post={post}
                   variant="detailed"
@@ -122,7 +123,11 @@ export default function Home() {
               <ErrorCard title="Error loading users" />
             ) : (
               usersToFollow.map((user) => (
-                <UserCard key={user.id} user={user} showFollowButton />
+                <UserCard
+                  key={`user-${user.id}`}
+                  user={user}
+                  showFollowButton
+                />
               ))
             )}
           </div>
@@ -139,7 +144,7 @@ export default function Home() {
 
               // Provide fallback user data if user is not found
               const fallbackUser = {
-                id: Number(`${post.id}${index}`),
+                id: `fallback-${post.id}-${index}`,
                 firstName: "Unknown",
                 lastName: "User",
                 username: "unknown",
@@ -148,7 +153,7 @@ export default function Home() {
 
               return (
                 <UserCard
-                  key={post.id}
+                  key={`recent-post-${post.id}`}
                   user={user || fallbackUser}
                   post={post}
                   variant="detailed"

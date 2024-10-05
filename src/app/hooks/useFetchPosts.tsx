@@ -24,7 +24,7 @@ export default function useFetchPosts(limit: number = 0): UseFetchPostsReturn {
         setLoading(true);
       }
       // Delay for testing
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const response = await fetch(
         `https://dummyjson.com/posts?limit=${limit}&skip=${skip}`
@@ -36,8 +36,14 @@ export default function useFetchPosts(limit: number = 0): UseFetchPostsReturn {
 
       const postsData = await response.json();
 
-
-      setAllPosts((prevPosts) => [...prevPosts, ...postsData.posts]);
+      setAllPosts((prevPosts) => {
+        const updatedPosts = [...prevPosts, ...postsData.posts];
+        const uniquePosts = updatedPosts.filter(
+          (post, index, self) =>
+            index === self.findIndex((p) => p.id === post.id)
+        );
+        return uniquePosts;
+      });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred"

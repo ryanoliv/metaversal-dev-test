@@ -153,7 +153,7 @@ http://localhost:3000
 
 ## Deployment
 
-You can deploy this application on platforms such as Vercel or Netlify. Follow these steps:
+This application is deployed on [Vercel](https://metaversal-dev-test.vercel.app/). To deploy this application on platforms such as Vercel or Netlify yourself, follow these steps:
 
 1. **Deploy with Vercel**
 

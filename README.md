@@ -182,6 +182,7 @@ Below is an overview of the folder structure used in the project:
 │       ├── fonts               # Font files for custom fonts
 │       ├── hooks               # Custom hooks (e.g., useFetchPosts, useFetchUsers)
 │       ├── types               # TypeScript type definitions
+│       ├── utils               # Utility functions and helper modules
 │       ├── globals.css         # Global CSS styling for the project
 │       ├── layout.tsx          # Layout file for consistent UI across pages
 │       └── page.tsx            # Home page of the application

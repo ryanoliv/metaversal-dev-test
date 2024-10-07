@@ -1,5 +1,3 @@
-// src/app/components/Providers.tsx
-
 "use client";
 
 import { SWRConfig } from "swr";
@@ -72,7 +70,6 @@ export default function Providers({ children }: ProvidersProps) {
         console.warn(
           "LocalStorage quota exceeded. Consider clearing some data."
         );
-        // Optionally, implement cache eviction strategies here
       } else {
         console.error(`Error setting localStorage key "${storageKey}":`, error);
       }
@@ -82,7 +79,7 @@ export default function Providers({ children }: ProvidersProps) {
   const swrConfig = useMemo(
     () => ({
       fetcher,
-      dedupingInterval: 60000, // 1 minute
+      dedupingInterval: 60000,
       onError: (error: unknown, key: string) => {
         if (error instanceof Error) {
           console.error(`SWR Error for key "${key}":`, error.message);
@@ -103,8 +100,7 @@ export default function Providers({ children }: ProvidersProps) {
       onSuccess: <T,>(data: T, key: string) => {
         handleSuccess<T>(key, data);
       },
-      fallback, // Provide the loaded cache as fallback
-      // Optionally, you can adjust other configurations here
+      fallback,
     }),
     [fallback]
   );

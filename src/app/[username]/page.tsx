@@ -59,7 +59,7 @@ export default function UserProfile({ params }: UserProfileProps) {
     };
   }, [setTitle, setShowBackArrow]);
 
-  if (userLoading || postsLoading) {
+  if (loading) {
     return (
       <section className="py-16 px-4 flex justify-center bg-contentBase">
         <div className="max-w-[700px] w-full flex flex-col gap-12">

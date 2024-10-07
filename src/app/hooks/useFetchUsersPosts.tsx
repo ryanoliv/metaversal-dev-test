@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+
+import useSWR from "swr";
+import { fetcher, FetcherError } from "../utils/fetcher";
 import { Post } from "../types/post";
 
 interface UseFetchUserPostsProps {
   userId?: number;
+  enabled?: boolean;
 }
 
 interface UseFetchUserPostsReturn {
@@ -13,38 +16,34 @@ interface UseFetchUserPostsReturn {
 
 export default function useFetchUserPosts({
   userId,
+  enabled = true,
 }: UseFetchUserPostsProps): UseFetchUserPostsReturn {
-  const [userPosts, setUserPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  // Construct the API endpoint only if userId is provided and enabled
+  const endpoint =
+    userId && enabled ? `https://dummyjson.com/users/${userId}/posts` : null;
 
-  useEffect(() => {
-    if (!userId) return;
+  const { data, error } = useSWR<{ posts: Post[] }, FetcherError>(
+    endpoint,
+    fetcher
+  );
 
-    const fetchUserPosts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `https://dummyjson.com/users/${userId}/posts`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch user posts");
-        }
-        const data = await response.json();
-        setUserPosts(data.posts);
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("An unexpected error occurred");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+  let userPosts: Post[] = [];
+  let errorMessage: string | null = null;
 
-    fetchUserPosts();
-  }, [userId]);
+  if (data) {
+    userPosts = data.posts;
+  }
 
-  return { userPosts, loading, error };
+  if (error) {
+    if (error.status === 404) {
+      errorMessage = "Posts not found for this user.";
+    } else {
+      errorMessage = error.message;
+    }
+    console.error(`Error fetching posts for userId "${userId}":`, error);
+  }
+
+  const loading = endpoint ? !data && !error : false;
+
+  return { userPosts, loading, error: errorMessage };
 }

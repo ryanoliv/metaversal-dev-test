@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import { useHeaderTitle } from "../contexts/HeaderTitleContext";
-import useFetchUsers from "../hooks/useFetchUsers";
+
 import useFetchUserPosts from "../hooks/useFetchUsersPosts";
+import useFetchUserByUsername from "../hooks/useFetchUserByUsername";
 import { Post } from "../types/post";
 import Image from "next/image";
 import UserCard from "../components/UserCard";
@@ -22,16 +23,14 @@ interface UserProfileProps {
 
 export default function UserProfile({ params }: UserProfileProps) {
   const { setTitle, setShowBackArrow } = useHeaderTitle();
-  const {
-    allUsers,
-    loading: usersLoading,
-    error: usersError,
-  } = useFetchUsers();
-
   const { username } = params;
 
-  // Find the user from the fetched users list
-  const user = allUsers.find((user) => user.username === username);
+  // Fetch user data based on the username
+  const {
+    user,
+    loading: userLoading,
+    error: userError,
+  } = useFetchUserByUsername(username);
 
   // Fetch posts for the specific user if found
   const {
@@ -40,11 +39,12 @@ export default function UserProfile({ params }: UserProfileProps) {
     error: postsError,
   } = useFetchUserPosts({
     userId: user?.id,
+    enabled: !!user,
   });
 
   // Unified loading and error states
-  const loading = usersLoading || postsLoading;
-  const error = usersError || postsError;
+  const loading = userLoading || postsLoading;
+  const error = userError || postsError;
 
   // Calculate total likes on user's posts
   const totalLikes =
@@ -59,9 +59,9 @@ export default function UserProfile({ params }: UserProfileProps) {
     };
   }, [setTitle, setShowBackArrow]);
 
-  if (loading) {
+  if (userLoading || postsLoading) {
     return (
-      <section className="py-16 px-4 flex justify-center bg-contentBase min-h-screen">
+      <section className="py-16 px-4 flex justify-center bg-contentBase">
         <div className="max-w-[700px] w-full flex flex-col gap-12">
           <SkeletonCardProfile />
           <div className="flex flex-col gap-4">

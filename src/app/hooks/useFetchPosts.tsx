@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
+import useSWRInfinite from "swr/infinite";
+import { fetcher, FetcherError } from "../utils/fetcher";
 import { Post } from "../types/post";
 
 interface UseFetchPostsReturn {
@@ -7,68 +9,51 @@ interface UseFetchPostsReturn {
   loading: boolean;
   loadingMore: boolean;
   error: string | null;
+  hasMore: boolean;
 }
 
-export default function useFetchPosts(limit: number = 0): UseFetchPostsReturn {
-  const [allPosts, setAllPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [skip, setSkip] = useState(0);
+export default function useFetchPosts(
+  limit: number = 0,
+  keyPrefix: string = "posts"
+): UseFetchPostsReturn {
+  // Define the SWR key with pagination parameters
+  const getKey = useCallback(
+    (pageIndex: number, previousPageData: { posts: Post[] } | null) => {
+      if (previousPageData && previousPageData.posts.length < limit)
+        return null;
+      const skip = pageIndex * limit;
+      return `https://dummyjson.com/posts?limit=${limit}&skip=${skip}&key=${keyPrefix}`;
+    },
+    [limit, keyPrefix]
+  );
 
-  async function fetchPosts(isLoadMore: boolean = false) {
-    try {
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
-      // Delay for testing
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
+  const { data, error, size, setSize, isValidating } = useSWRInfinite<
+    { posts: Post[] },
+    FetcherError
+  >(getKey, fetcher);
 
-      const response = await fetch(
-        `https://dummyjson.com/posts?limit=${limit}&skip=${skip}`
-      );
+  const allPosts = data ? data.flatMap((page) => page.posts) : [];
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch posts");
-      }
+  const loadingInitial: boolean = !data && !error;
+  const loadingMore: boolean = Boolean(isValidating && data && size > 0);
+  const loading: boolean = loadingInitial;
 
-      const postsData = await response.json();
+  const hasMore: boolean = useMemo(() => {
+    if (!data) return true;
+    const lastPage = data[data.length - 1];
+    return lastPage.posts.length === limit;
+  }, [data, limit]);
 
-      setAllPosts((prevPosts) => {
-        const updatedPosts = [...prevPosts, ...postsData.posts];
-        const uniquePosts = updatedPosts.filter(
-          (post, index, self) =>
-            index === self.findIndex((p) => p.id === post.id)
-        );
-        return uniquePosts;
-      });
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unexpected error occurred"
-      );
-    } finally {
-      if (isLoadMore) {
-        setLoadingMore(false);
-      } else {
-        setLoading(false);
-      }
-    }
-  }
+  const fetchMorePosts = useCallback(() => {
+    setSize((prevSize) => prevSize + 1);
+  }, [setSize]);
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  // Function to fetch more posts
-  function fetchMorePosts() {
-    setSkip((prevSkip) => {
-      const newSkip = prevSkip + limit;
-      fetchPosts(true);
-      return newSkip;
-    });
-  }
-
-  return { allPosts, fetchMorePosts, loading, loadingMore, error };
+  return {
+    allPosts,
+    fetchMorePosts,
+    loading,
+    loadingMore,
+    error: error?.message || null,
+    hasMore,
+  };
 }

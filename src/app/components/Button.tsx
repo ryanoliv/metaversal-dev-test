@@ -18,7 +18,6 @@ export default function Button({ children, variant = "primary" }: ButtonProps) {
           <span className="absolute inset-0 transition-opacity duration-500 ease-in-out bg-button-gradient-primary-hover opacity-0 group-hover:opacity-100"></span>
         </>
       )}
-      {/* Button content */}
       <span className="relative z-10">{children}</span>
     </button>
   );

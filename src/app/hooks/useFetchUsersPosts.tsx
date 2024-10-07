@@ -1,4 +1,3 @@
-
 import useSWR from "swr";
 import { fetcher, FetcherError } from "../utils/fetcher";
 import { Post } from "../types/post";

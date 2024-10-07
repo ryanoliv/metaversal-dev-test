@@ -1,5 +1,3 @@
-// src/hooks/useFetchUserByUsername.ts
-
 import useSWR from "swr";
 import { fetcher, FetcherError } from "../utils/fetcher";
 import { User } from "../types/user";

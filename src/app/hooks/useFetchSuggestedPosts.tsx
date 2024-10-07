@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import useSWR from "swr";
+import { fetcher } from "../utils/fetcher";
 import { Post } from "../types/post";
+import { useMemo } from "react";
 
 interface UseFetchSuggestedPostsReturn {
   suggestedPosts: Post[];
@@ -10,38 +12,20 @@ interface UseFetchSuggestedPostsReturn {
 export default function useFetchSuggestedPosts(
   limit: number = 2
 ): UseFetchSuggestedPostsReturn {
-  const [suggestedPosts, setSuggestedPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error } = useSWR<{ posts: Post[] }, Error>(
+    "https://dummyjson.com/posts?limit=0",
+    fetcher
+  );
 
-  useEffect(() => {
-    async function fetchSuggestedPosts() {
-      try {
-        setLoading(true);
-        const response = await fetch(`https://dummyjson.com/posts?limit=100`);
+  const suggestedPosts: Post[] = useMemo(() => {
+    if (!data) return [];
+    return [...data.posts]
+      .sort((a, b) => b.reactions.likes - a.reactions.likes)
+      .slice(0, limit);
+  }, [data, limit]);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch suggested posts");
-        }
+  const loading: boolean = !data && !error;
+  const errorMessage: string | null = error?.message || null;
 
-        const postsData = await response.json();
-        // Sort posts by likes in descending order and take top `limit` posts
-        const sortedPosts = postsData.posts
-          .sort((a: Post, b: Post) => b.reactions.likes - a.reactions.likes)
-          .slice(0, limit);
-
-        setSuggestedPosts(sortedPosts);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unexpected error occurred"
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchSuggestedPosts();
-  }, [limit]);
-
-  return { suggestedPosts, loading, error };
+  return { suggestedPosts, loading, error: errorMessage };
 }

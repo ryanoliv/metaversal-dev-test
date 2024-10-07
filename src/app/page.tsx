@@ -11,12 +11,12 @@ import UserCard from "./components/UserCard";
 import SkeletonCard from "./components/SkeletonCard";
 import SkeletonCardSimplified from "./components/SkeletonCardSimplified";
 import ErrorCard from "./components/ErrorCard";
+import { fallbackUser } from "./utils/fallbacks";
 
 export default function Home() {
   const { setTitle, setShowBackArrow } = useHeaderTitle();
   const observer = useRef<IntersectionObserver | null>(null);
 
-  // Using separate hooks for fetching users and posts and suggested posts
   const {
     allUsers,
     loading: usersLoading,
@@ -29,7 +29,8 @@ export default function Home() {
     loading: postsLoading,
     loadingMore,
     error: postsError,
-  } = useFetchPosts(5);
+    hasMore,
+  } = useFetchPosts(5, "homePosts");
 
   const {
     suggestedPosts,
@@ -56,20 +57,29 @@ export default function Home() {
   const lastPostRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (loading || loadingMore) return;
+    if (loading || loadingMore || !hasMore) return;
 
     if (observer.current) observer.current.disconnect();
 
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        fetchMorePosts(); // Fetch more posts when the last post is in view
-      }
-    });
+    observer.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchMorePosts(); // Fetch more posts when the last post is in view
+        }
+      },
+      { root: null, rootMargin: "0px", threshold: 1.0 }
+    );
 
     if (lastPostRef.current) {
       observer.current.observe(lastPostRef.current);
     }
-  }, [loading, loadingMore, fetchMorePosts]);
+
+    return () => {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+    };
+  }, [fetchMorePosts, loading, loadingMore, hasMore]);
 
   return (
     <section className="flex justify-center bg-contentBase">
@@ -84,20 +94,9 @@ export default function Home() {
             <ErrorCard title="No user found" />
           ) : (
             suggestedPosts.map((post: Post) => {
-              let user = allUsers.find((user) => user.id === post.userId);
-
-              // Provide fallback user data if user is not found
-              const fallbackUser = {
-                id: -1,
-                firstName: "Unknown",
-                lastName: "User",
-                username: "unknown",
-                avatarUrl: "/Avatar.png",
-              };
-
-              if (!user) {
-                user = fallbackUser;
-              }
+              const user =
+                allUsers.find((user) => user.id === post.userId) ||
+                fallbackUser;
 
               return (
                 <UserCard
@@ -138,15 +137,9 @@ export default function Home() {
             <ErrorCard title="Error loading posts" />
           ) : (
             allPosts.map((post, index) => {
-              const user = allUsers.find((user) => user.id === post.userId);
-
-              const fallbackUser = {
-                id: -1,
-                firstName: "Unknown",
-                lastName: "User",
-                username: "unknown",
-                avatarUrl: "/Avatar.png",
-              };
+              const user =
+                allUsers.find((user) => user.id === post.userId) ||
+                fallbackUser;
 
               return (
                 <UserCard

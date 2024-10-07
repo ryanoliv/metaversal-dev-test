@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import Header from "./components/Header";
 import "./globals.css";
 import { HeaderTitleProvider } from "./contexts/HeaderTitleContext";
+import Providers from "./components/Providers";
 
 const robotoFlex = localFont({
   src: "./fonts/RobotoFlex-VariableFont.ttf",
@@ -23,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${robotoFlex.variable} antialiased`}>
       <body className="relative">
-        <HeaderTitleProvider>
-          <Header />
-          <main className="pt-[59px]">{children}</main>
-        </HeaderTitleProvider>
+        <Providers>
+          <HeaderTitleProvider>
+            <Header />
+            <main className="pt-[59px]">{children}</main>
+          </HeaderTitleProvider>
+        </Providers>
       </body>
     </html>
   );

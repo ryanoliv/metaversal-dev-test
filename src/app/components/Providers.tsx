@@ -1,3 +1,5 @@
+// src/app/components/Providers.tsx
+
 "use client";
 
 import { SWRConfig } from "swr";
@@ -8,26 +10,36 @@ interface ProvidersProps {
   children: React.ReactNode;
 }
 
-interface FallbackData {
-  [key: string]: any;
+interface StoredData<T> {
+  data: T;
+  timestamp: number;
 }
+
+type FallbackData = Record<string, unknown>;
 
 export default function Providers({ children }: ProvidersProps) {
   const [fallback, setFallback] = useState<FallbackData>({});
 
   useEffect(() => {
+    // Function to load cache from localStorage
     const loadCache = () => {
       const cache: FallbackData = {};
       for (const key in localStorage) {
         if (key.startsWith("swr-cache-")) {
           try {
-            const parsed = JSON.parse(localStorage.getItem(key)!);
+            const storedItem = localStorage.getItem(key);
+            if (!storedItem) continue;
+
+            const parsed: StoredData<unknown> = JSON.parse(storedItem);
             const { data, timestamp } = parsed;
             const maxAge = 1000 * 60 * 60 * 24; // 24 hours
+
             if (Date.now() - timestamp < maxAge) {
+              // Remove 'swr-cache-' prefix to get the original SWR key
               const swrKey = key.replace("swr-cache-", "");
               cache[swrKey] = data;
             } else {
+              // Remove expired cache
               localStorage.removeItem(key);
             }
           } catch (error) {
@@ -43,9 +55,9 @@ export default function Providers({ children }: ProvidersProps) {
   }, []);
 
   // Function to save data to localStorage
-  const handleSuccess = (key: string, data: any) => {
+  const handleSuccess = <T,>(key: string, data: T) => {
     const storageKey = `swr-cache-${key}`;
-    const dataToStore = {
+    const dataToStore: StoredData<T> = {
       data,
       timestamp: Date.now(),
     };
@@ -60,6 +72,7 @@ export default function Providers({ children }: ProvidersProps) {
         console.warn(
           "LocalStorage quota exceeded. Consider clearing some data."
         );
+        // Optionally, implement cache eviction strategies here
       } else {
         console.error(`Error setting localStorage key "${storageKey}":`, error);
       }
@@ -69,7 +82,7 @@ export default function Providers({ children }: ProvidersProps) {
   const swrConfig = useMemo(
     () => ({
       fetcher,
-      dedupingInterval: 60000, 
+      dedupingInterval: 60000, // 1 minute
       onError: (error: unknown, key: string) => {
         if (error instanceof Error) {
           console.error(`SWR Error for key "${key}":`, error.message);
@@ -87,10 +100,11 @@ export default function Providers({ children }: ProvidersProps) {
           console.error(`SWR Error for key "${key}":`, error);
         }
       },
-      onSuccess: (data: any, key: string) => {
-        handleSuccess(key, data);
+      onSuccess: <T,>(data: T, key: string) => {
+        handleSuccess<T>(key, data);
       },
-      fallback,
+      fallback, // Provide the loaded cache as fallback
+      // Optionally, you can adjust other configurations here
     }),
     [fallback]
   );
